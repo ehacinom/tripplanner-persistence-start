@@ -16,11 +16,8 @@ router.get('/', (req, res, next) => {
 router.post('/', (req, res, next) => {
     Day
         .create({number: req.body.number})
-        .then(result => console.log('created day days.js'))
+        .then(result => res.json(result))
         .catch(next)
-
-    // necessary?
-    res.json(req.body);
 });
 
 // get one day
@@ -31,11 +28,27 @@ router.get('/:id', (req, res, next) => {
         .catch(next)
 })
 
+// delete one day
+router.delete('/:number', (req, res, next) => {
+    Day
+        .findOne({where: {number : req.params.number}})
+        .then(result => result.destroy())
+        .then(result => Day.findAll({
+            where: {number: {$gt: req.params.number}}
+        }))
+        .then(result => result.map(row => row.decrement('number')))
+        .then(result => Promise.all(result))
+        .then(result => res.sendStatus(204))
+        .catch(next);
+})
 
-// post one attraction to one day
+
+
+
+// update by adding one attraction to one day
 router.post('/:number/:type', (req, res, next) => {
     let dayPromise = Day.findOne({where: {number: req.params.number}});
-    console.log(req.body.id, typeof req.body.id)
+    
     switch (req.params.type) {
         case 'hotel':
             Hotel
@@ -59,7 +72,37 @@ router.post('/:number/:type', (req, res, next) => {
             console.error('bad type in days.js')
     }
     
-    res.status(200);
+    res.sendStatus(201);
+})
+
+// update by deleting an attraction to one day
+router.put('/:number/:type', (req, res, next) => {
+    let dayPromise = Day.findOne({where: {number: req.params.number}});
+    
+    switch (req.params.type) {
+        case 'hotel':
+            Hotel
+                .findOne({where: {id: req.body.id}})
+                .then(result => dayPromise.then(day => day.setHotel(null)))
+                .catch(next);
+            break;
+        case 'restaurant':
+            Restaurant
+                .findOne({where: {id: req.body.id}})
+                .then(result => dayPromise.then(day => day.removeRestaurant(result)))
+                .catch(next);
+            break;
+        case 'activity':
+            Activity
+                .findOne({where: {id: req.body.id}})
+                .then(result => dayPromise.then(day => day.removeActivity(result)))
+                .catch(next);
+            break;
+        default:
+            console.error('bad type in days.js')
+    }
+    
+    res.sendStatus(204);
 })
 
 

@@ -45,14 +45,7 @@ function createTripModule () {
     });
 
     function addDay () {
-      if (this && this.blur) this.blur(); // removes focus box from buttons
       var newDay = dayModule.create({ number: days.length + 1 }); // dayModule
-      days.push(newDay);
-      if (days.length === 1) {
-        currentDay = newDay;
-      }
-      switchTo(newDay);
-      
       
       /// ajax
       $.ajax({ 
@@ -60,28 +53,42 @@ function createTripModule () {
           method: 'POST',
           dataType: 'json',
           data: JSON.stringify(newDay),
-          contentType: 'application/json'
+          contentType: 'application/json' /// wow why are we confused
       })
-      .then(result => console.log('added a new day trip.js', result))
-      .catch(err => console.error(err));
+      .then(result => {
+          if (this && this.blur) this.blur(); // removes focus box from buttons
+          days.push(newDay);
+          if (days.length === 1) {
+            currentDay = newDay;
+          }
+          switchTo(newDay);
+      })
+      .catch(err => alert('DID NOT WORK'));
       
     }
 
     function deleteCurrentDay () {
       // prevent deleting last day
       if (days.length < 2 || !currentDay) return;
-      // remove from the collection
-      var index = days.indexOf(currentDay),
-        previousDay = days.splice(index, 1)[0],
-        newCurrent = days[index] || days[index - 1];
-      // fix the remaining day numbers
-      days.forEach(function (day, i) {
-        day.setNumber(i + 1);
-      });
-      switchTo(newCurrent);
-      previousDay.hideButton();
       
       /// ajax
+      $.ajax({
+          url: `api/days/${currentDay.number}`,
+          method: 'DELETE'
+      })
+      .then(result => {
+          // remove from the collection
+          var index = days.indexOf(currentDay),
+            previousDay = days.splice(index, 1)[0],
+            newCurrent = days[index] || days[index - 1];
+          // fix the remaining day numbers
+            days.forEach(function (day, i) {
+            day.setNumber(i + 1);
+          });
+          switchTo(newCurrent);
+          previousDay.hideButton();
+      })
+      .catch(err => alert('DID NOT WORK'));
       
     }
 
@@ -97,7 +104,6 @@ function createTripModule () {
               method: 'GET',
               dataType: 'json'
           }).then(result => {
-              console.log('trip', result)
               if (result.length) {
                   let dayobj;
                   result.forEach(day => {

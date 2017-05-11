@@ -94,34 +94,33 @@ function createDayModule() {
   // day updating
 
   Day.prototype.addAttraction = function (attraction) {
-    // adding to the day object
-    switch (attraction.type) {
-      case 'hotel':
-        if (this.hotel) this.hotel.hide();
-        this.hotel = attraction;
-        break;
-      case 'restaurant':
-        utilsModule.pushUnique(this.restaurants, attraction);
-        break;
-      case 'activity':
-        utilsModule.pushUnique(this.activities, attraction);
-        break;
-      default: console.error('bad type:', attraction);
-    }
-    // activating UI
-    attraction.show();
-    
-    console.log('attraction day.js', attraction)
     
     /// ajax
     $.ajax({
         url: `/api/days/${this.number}/${attraction.type}`,
         method: 'POST',
-        dataType: 'json',
+        // dataType: 'json',
         contentType: 'application/json',
         data: JSON.stringify({ id: attraction.id })
     })
-    .then(result => console.log('added a new attraction day.js', result))
+    .then(result => {
+        // adding to the day object
+        switch (attraction.type) {
+          case 'hotel':
+            if (this.hotel) this.hotel.hide();
+            this.hotel = attraction;
+            break;
+          case 'restaurant':
+            utilsModule.pushUnique(this.restaurants, attraction);
+            break;
+          case 'activity':
+            utilsModule.pushUnique(this.activities, attraction);
+            break;
+          default: console.error('bad type:', attraction);
+        }
+        // activating UI
+        attraction.show();
+    })
     .catch(err => {
         console.error(err)
         console.log('hey error post day.js')
@@ -131,21 +130,33 @@ function createDayModule() {
   };
 
   Day.prototype.removeAttraction = function (attraction) {
-    // removing from the day object
-    switch (attraction.type) {
-      case 'hotel':
-        this.hotel = null;
-        break;
-      case 'restaurant':
-        utilsModule.remove(this.restaurants, attraction);
-        break;
-      case 'activity':
-        utilsModule.remove(this.activities, attraction);
-        break;
-      default: console.error('bad type:', attraction);
-    }
-    // deactivating UI
-    attraction.hide();
+    
+    /// ajax
+    $.ajax({
+        url: `/api/days/${this.number}/${attraction.type}`,
+        method: 'PUT',
+        dataType: 'json',
+        contentType: 'application/json',
+        data: JSON.stringify({ id: attraction.id })
+    })
+    .then(result => {
+        // removing from the day object
+        switch (attraction.type) {
+          case 'hotel':
+            this.hotel = null;
+            break;
+          case 'restaurant':
+            utilsModule.remove(this.restaurants, attraction);
+            break;
+          case 'activity':
+            utilsModule.remove(this.activities, attraction);
+            break;
+          default: console.error('bad type:', attraction);
+        }
+        // deactivating UI
+        attraction.hide();
+    })
+    .catch(console.error.bind(console))
   };
 
   // globally accessible module methods

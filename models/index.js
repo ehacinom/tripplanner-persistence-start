@@ -10,7 +10,7 @@ Hotel.belongsTo(Place);
 Restaurant.belongsTo(Place);
 Activity.belongsTo(Place);
 
-Day.hasOne(Hotel);
+Day.belongsTo(Hotel);
 Day.belongsToMany(Restaurant, {through: "DayRestaurant"});
 Day.belongsToMany(Activity, {through: "DayActivity"});
 

@@ -3,7 +3,8 @@ var db = require('./_db');
 
 var Day = db.define('day', {
     number: {
-        type: Sequelize.INTEGER
+        type: Sequelize.INTEGER,
+        allowNull: false
     }
 }, {
     defaultScope: {
