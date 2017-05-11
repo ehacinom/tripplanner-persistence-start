@@ -52,6 +52,19 @@ function createTripModule () {
         currentDay = newDay;
       }
       switchTo(newDay);
+      
+      
+      /// ajax
+      $.ajax({ 
+          url: '/api/days', 
+          method: 'POST',
+          dataType: 'json',
+          data: JSON.stringify(newDay),
+          contentType: 'application/json'
+      })
+      .then(result => console.log('added a new day trip.js', result))
+      .catch(err => console.error(err));
+      
     }
 
     function deleteCurrentDay () {
@@ -67,6 +80,9 @@ function createTripModule () {
       });
       switchTo(newCurrent);
       previousDay.hideButton();
+      
+      /// ajax
+      
     }
 
     // globally accessible module methods
@@ -74,7 +90,28 @@ function createTripModule () {
     var publicAPI = {
 
       load: function () {
-        $(addDay);
+          /// ajax
+          // get persisted days or not if none
+          $.ajax({
+              url: '/api/days',
+              method: 'GET',
+              dataType: 'json'
+          }).then(result => {
+              console.log('trip', result)
+              if (result.length) {
+                  let dayobj;
+                  result.forEach(day => {
+                      dayobj = dayModule.create(day);
+                      days.push(dayobj)
+                  });
+                  
+                  // show last day
+                  dayobj.show();
+                  switchTo(dayobj);
+              } else {
+                  $(addDay);
+              }
+          }).catch(console.error.bind(console));
       },
 
       switchTo: switchTo,

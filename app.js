@@ -4,7 +4,7 @@ var bodyParser = require('body-parser');
 var nunjucks = require('nunjucks');
 var path = require('path');
 
-var db = require('./models');
+var { db } = require('./models');
 
 var app = express();
 

@@ -1,29 +1,14 @@
 let express = require('express');
 let router = express.Router();
-var Hotel = require('../../models/hotel');
-var Restaurant = require('../../models/restaurant');
-var Activity = require('../../models/activity');
 
-router.get('/hotels/', function(req, res, next){
-  Hotel.findAll()
-    .then(function(hotels){
-      res.json(hotels);
-    })
-    .catch(next);
-});
-router.get('/restaurants/', function(req, res, next){
-  Restaurant.findAll()
-    .then(function(restaurants){
-      res.json(restaurants);
-    })
-    .catch(next);
-});
-router.get('/activities/', function(req, res, next){
-  Activity.findAll()
-    .then(function(activities){
-      res.json(activities);
-    })
-    .catch(next);
-});
+const hotelRoutes = require('./hotels');
+const restaurantRoutes = require('./restaurants');
+const activityRoutes = require('./activities');
+const dayRoutes = require('./days');
+
+router.use('/hotels', hotelRoutes);
+router.use('/restaurants', restaurantRoutes);
+router.use('/activities', activityRoutes);
+router.use('/days', dayRoutes);
 
 module.exports = router;

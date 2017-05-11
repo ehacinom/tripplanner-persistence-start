@@ -110,6 +110,24 @@ function createDayModule() {
     }
     // activating UI
     attraction.show();
+    
+    console.log('attraction day.js', attraction)
+    
+    /// ajax
+    $.ajax({
+        url: `/api/days/${this.number}/${attraction.type}`,
+        method: 'POST',
+        dataType: 'json',
+        contentType: 'application/json',
+        data: JSON.stringify({ id: attraction.id })
+    })
+    .then(result => console.log('added a new attraction day.js', result))
+    .catch(err => {
+        console.error(err)
+        console.log('hey error post day.js')
+        console.log(attraction)
+    });
+    
   };
 
   Day.prototype.removeAttraction = function (attraction) {
